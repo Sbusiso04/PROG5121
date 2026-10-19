@@ -1,0 +1,92 @@
+const readline = require('readline-sync');
+const Message = require('./Message');
+
+function runQuickChat() {
+    console.log("Welcome to QuickChat.");
+
+    // 1. Simple login check simulation
+    let isLoggedIn = false;
+    const username = readline.question("Enter username: ");
+    const password = readline.question("Enter password: ", { hideEchoBack: true });
+
+    if (username && password) {
+        isLoggedIn = true;
+        console.log("Login successful!");
+    } else {
+        console.log("Login failed. Exiting.");
+        return;
+    }
+
+    if (!isLoggedIn) return;
+
+    let running = true;
+    let totalMessagesSent = 0;
+    let storedMessages = [];
+
+    while (running) {
+        console.log("\n--- QuickChat Menu ---");
+        console.log("Option 1) Send Messages");
+        console.log("Option 2) Show recently sent messages (Coming Soon.)");
+        console.log("Option 3) Quit");
+
+        const choice = readline.question("Choose an option (1-3): ");
+
+        if (choice === "1") {
+            const numMessages = parseInt(readline.question("How many messages do you wish to enter? "), 10);
+
+            for (let i = 1; i <= numMessages; i++) {
+                console.log(`\n--- Entering Message ${i} ---`);
+                
+                const messageId = Math.floor(1000000000 + Math.random() * 9000000000); // 10-digit ID
+                const recipient = readline.question("Enter recipient cell number (e.g., +277...): ");
+                const messageText = readline.question("Enter message text (max 250 characters): ");
+
+                // Validate length
+                if (messageText.length > 250) {
+                    console.log(`Please enter a message of less than 250 characters. (Exceeds by ${messageText.length - 250})`);
+                    i--; // retry current loop iteration
+                    continue;
+                } else {
+                    console.log("Message sent / ready to send.");
+                }
+
+                const msgObj = new Message(messageId, recipient, messageText);
+
+                // Validate recipient
+                if (!msgObj.checkRecipientCell()) {
+                    console.log("Cell phone number is incorrectly formatted or does not contain an international code. Please correct the number and try again.");
+                }
+
+                console.log(`Generated Message ID: ${msgObj.messageId}`);
+                console.log(`Generated Message Hash: ${msgObj.messageHash}`);
+
+                console.log("\nChoose action:");
+                console.log("1) Send Message");
+                console.log("2) Disregard Message");
+                console.log("3) Store Message to send later");
+                
+                const actionChoice = readline.question("Select option (1-3): ");
+                const resultMessage = msgObj.sendMessageChoice(actionChoice);
+                console.log(resultMessage);
+
+                if (actionChoice === "1") {
+                    totalMessagesSent++;
+                } else if (actionChoice === "3") {
+                    storedMessages.push(msgObj);
+                }
+            }
+
+            console.log(`\nTotal messages processed/sent in session: ${totalMessagesSent}`);
+
+        } else if (choice === "2") {
+            console.log("Coming Soon.");
+        } else if (choice === "3" || choice.toLowerCase() === 'quit') {
+            console.log("Exiting QuickChat. Goodbye!");
+            running = false;
+        } else {
+            console.log("Invalid option, please try again.");
+        }
+    }
+}
+
+runQuickChat();
