@@ -1,0 +1,51 @@
+class Message {
+    constructor(messageId, recipient, messageText) {
+        this.messageId = messageId;
+        this.recipient = recipient;
+        this.messageText = messageText;
+        this.messageHash = this.createMessageHash();
+    }
+
+    // Check if Message ID is not more than 10 characters
+    checkMessageID() {
+        return this.messageId.toString().length <= 10;
+    }
+
+    // Check if recipient cell number is <= 10 characters and contains international code (e.g., starts with +)
+    checkRecipientCell() {
+        return this.recipient.length <= 10 && this.recipient.startsWith("+");
+    }
+
+    // Create message hash: first 2 numbers of ID, colon, number of message, colon, first and last words (all uppercase)
+    createMessageHash() {
+        const idStr = this.messageId.toString();
+        const firstTwoId = idStr.substring(0, 2);
+        
+        // Split words in message
+        const words = this.messageText.trim().split(/\s+/);
+        const firstWord = words[0] || "";
+        const lastWord = words[words.length - 1] || "";
+        
+        // Assuming a message counter or placeholder for number of the message
+        const messageNum = "0"; 
+
+        const hash = `${firstTwoId}:${messageNum}:${firstWord}${lastWord}`;
+        return hash.toUpperCase();
+    }
+
+    // Handle sending, storing, or disregarding
+    sendMessageChoice(choice) {
+        switch (choice) {
+            case "1":
+                return "Message successfully sent.";
+            case "2":
+                return "Press 0 to delete the message.";
+            case "3":
+                return "Message successfully stored.";
+            default:
+                return "Invalid choice.";
+        }
+    }
+}
+
+module.exports = Message;
